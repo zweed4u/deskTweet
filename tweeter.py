@@ -13,7 +13,6 @@ import urllib2
 import time
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from pyvirtualdisplay import Display
 import os
 import time
 #try:
@@ -42,8 +41,9 @@ br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
 # User-Agent (this is cheating, ok?)
 br.addheaders = [('User-agent', 'Chrome')]
 
-browser = webdriver.PhantomJS(executable_path='C:\Users\Zack\Desktop\deskTweet\phantomjs.exe')
 
+browser = webdriver.Chrome()
+#browser = webdriver.PhantomJS(executable_path='C:\Users\Zack\Desktop\deskTweet\phantomjs.exe')
 
 # The site we will navigate into, handling it's session
 br.open('https://twitter.com/')
@@ -60,6 +60,7 @@ br.select_form(nr=1)
 
 
 
+browser.delete_all_cookies()
 
 # User credentials
 #####HANDLE LOGIN CHECKING#####
@@ -80,27 +81,67 @@ br.submit()
 
 #Prints html of main page after login
 br.open('https://twitter.com/')
+browser.get('https://twitter.com')
 
 if str(username) not in br.response().read():
     print "\n***Login failed***\n"
 
 else:
-    browser.get('https://twitter.com')
-    
-	
+    	
     user = browser.find_element_by_id('signin-email')
     passw = browser.find_element_by_id('signin-password')
-    user.send_keys(username)
+    user.send_keys(str(username).lower())
     passw.send_keys(password)
     browser.save_screenshot("login.png")
-    #browser.find_element_by_class_name('submit btn primary-btn flex-table-btn js-submit').click()
-
 	
     LOGIN_BUTTON_XPATH = '//*[@id="front-container"]/div[2]/div[2]/form/table/tbody/tr/td[2]/button'
     button = browser.find_element_by_xpath(LOGIN_BUTTON_XPATH)
     button.click()
+    time.sleep(1)
     browser.save_screenshot("home.png")
-    print "Welcome to your " + str(browser.title)
+    print "\nWelcome @" + str(username) +"\n"
+
+    COMPOSE_FIELD_XPATH = '//*[@id="tweet-box-mini-home-profile"]'
+    field = browser.find_element_by_xpath(COMPOSE_FIELD_XPATH)
+    field.click()
+    browser.save_screenshot("compose.png")
+
+    defaultText = browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']/div/br").text
+    print "In tweetbox -> ("+str(defaultText)+")"
+    
+    #browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']/div").send_keys(message)
+    browser.save_screenshot("default.png")
+
+
+
+    time.sleep(2)
+    browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']").send_keys("ping3")
+    changedText = browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']/div").text
+    browser.save_screenshot("myTweet.png")
+    print "In tweetbox -> ("+str(changedText)+")"
+    time.sleep(2)
+    TWEET_SEND_XPATH = '//*[@id="page-container"]/div[2]/div[1]/div/div[3]/form/div[2]/div[2]/button'
+    send = browser.find_element_by_xpath(TWEET_SEND_XPATH)
+    send.click()
+    time.sleep(2)
+    browser.save_screenshot("sent.png")
+    print "Tweet successfully posted!"
+
+    '''
+    TWEET_XPATH = '//*[@id="tweet-box-mini-home-profile"]/div'
+    TWEET_TEXT = browser.find_element_by_xpath(TWEET_XPATH)
+
+
+    browser.findElement(By.xpath('//*[@id="tweet-box-mini-home-profile"][div[text()="hello world"]]'));
+    #TWEET_TEXT.send_keys('dnkjasnd')
+    browser.save_screenshot("tweet.png")
+
+
+
+    start = browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']/div").getText()
+    print start
+    '''
+    
     '''
     time.sleep(3)
         
