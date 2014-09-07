@@ -42,9 +42,9 @@ br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
 br.addheaders = [('User-agent', 'Chrome')]
 
 
-browser = webdriver.Chrome()
-#browser = webdriver.PhantomJS(executable_path='C:\Users\Zack\Desktop\deskTweet\phantomjs.exe')
-
+#browser = webdriver.Chrome()
+browser = webdriver.PhantomJS(executable_path='C:\Users\Zack\Desktop\deskTweet\phantomjs.exe')
+browser.delete_all_cookies()
 # The site we will navigate into, handling it's session
 br.open('https://twitter.com/')
 
@@ -60,10 +60,11 @@ br.select_form(nr=1)
 
 
 
-browser.delete_all_cookies()
+
 
 # User credentials
 #####HANDLE LOGIN CHECKING#####
+print "\n"
 username = raw_input("Phone, email or username: ")
 print "Password: "
 password = passwordbox("Password: ")
@@ -83,6 +84,9 @@ br.submit()
 br.open('https://twitter.com/')
 browser.get('https://twitter.com')
 
+
+myTweet = ""
+
 if str(username) not in br.response().read():
     print "\n***Login failed***\n"
 
@@ -93,40 +97,87 @@ else:
     user.send_keys(str(username).lower())
     passw.send_keys(password)
     browser.save_screenshot("login.png")
-	
+
+    
     LOGIN_BUTTON_XPATH = '//*[@id="front-container"]/div[2]/div[2]/form/table/tbody/tr/td[2]/button'
     button = browser.find_element_by_xpath(LOGIN_BUTTON_XPATH)
     button.click()
     time.sleep(1)
     browser.save_screenshot("home.png")
-    print "\nWelcome @" + str(username) +"\n"
+    print "\n\n       Welcome @" + str(username)
+    print "==================================\n"
 
-    COMPOSE_FIELD_XPATH = '//*[@id="tweet-box-mini-home-profile"]'
-    field = browser.find_element_by_xpath(COMPOSE_FIELD_XPATH)
-    field.click()
-    browser.save_screenshot("compose.png")
-
-    defaultText = browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']/div/br").text
-    print "In tweetbox -> ("+str(defaultText)+")"
     
-    #browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']/div").send_keys(message)
-    browser.save_screenshot("default.png")
+
+    
+    #IF SOMETHING ALREADY IN
+    
+  
+
+   
 
 
 
-    time.sleep(2)
-    browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']").send_keys("ping3")
-    changedText = browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']/div").text
-    browser.save_screenshot("myTweet.png")
-    print "In tweetbox -> ("+str(changedText)+")"
-    time.sleep(2)
-    TWEET_SEND_XPATH = '//*[@id="page-container"]/div[2]/div[1]/div/div[3]/form/div[2]/div[2]/button'
-    send = browser.find_element_by_xpath(TWEET_SEND_XPATH)
-    send.click()
-    time.sleep(2)
-    browser.save_screenshot("sent.png")
-    print "Tweet successfully posted!"
 
+    #print (browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']/div").text)
+
+
+    
+    def tweet():
+
+
+        COMPOSE_FIELD_XPATH = '//*[@id="tweet-box-mini-home-profile"]'
+        field = browser.find_element_by_xpath(COMPOSE_FIELD_XPATH)
+        field.click()
+        browser.save_screenshot("compose.png")
+
+        
+        if len(browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']/div").text) > 0:
+            print (browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']/div").text)
+            print len(browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']/div").text)
+            browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']").send_keys("")
+
+        
+        
+        defaultText = browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']/div").text
+        print "Currently in tweetbox -> '"+str(defaultText)+"'\n"
+
+        
+        #browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']/div").send_keys(message)
+        browser.save_screenshot("default.png")
+
+        time.sleep(2)
+        myTweet = raw_input("What would you like to tweet (ESC to exit): ")
+        if (myTweet == "ESC"):
+            print "\nGoodbye @" + str(username)
+            time.sleep(2)
+            sys.exit(0)
+                  
+
+        browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']").send_keys(myTweet)
+        changedText = browser.find_element_by_xpath("//*[@id='tweet-box-mini-home-profile']/div").text
+        browser.save_screenshot("myTweet.png")
+        print "\nCurrently in tweetbox -> '"+str(changedText)+"'\n"
+        time.sleep(2)
+        TWEET_SEND_XPATH = '//*[@id="page-container"]/div[2]/div[1]/div/div[3]/form/div[2]/div[2]/button'
+        send = browser.find_element_by_xpath(TWEET_SEND_XPATH)
+        send.click()
+        time.sleep(2)
+        browser.save_screenshot("sent.png")
+        print "Tweet successfully posted!\n"
+        time.sleep(1)
+        tweet()
+
+
+
+    if (myTweet == "ESC"):
+        sys.exit()
+    else:
+        tweet()
+        sys.exit()
+
+
+    
     '''
     TWEET_XPATH = '//*[@id="tweet-box-mini-home-profile"]/div'
     TWEET_TEXT = browser.find_element_by_xpath(TWEET_XPATH)
